@@ -56,6 +56,8 @@ public class DraggableBlock : MonoBehaviour
             gridManager.SetCellOccupied(gridPos.x, gridPos.y, true);
             currentGridX = gridPos.x;
             currentGridY = gridPos.y;
+
+            gridManager.CheckAndClearLines();
         }
         else
         {

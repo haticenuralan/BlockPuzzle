@@ -70,4 +70,76 @@ public class GridManager : MonoBehaviour
             gridData[x, y] = occupied;
         }
     }
+    // Dolu olan satır/sütunları kontrol eder ve varsa temizler
+    public void CheckAndClearLines()
+    {
+        // Dolu satırları bul
+        for (int y = 0; y < gridHeight; y++)
+        {
+            bool rowFull = true;
+            for (int x = 0; x < gridWidth; x++)
+            {
+                if (!gridData[x, y])
+                {
+                    rowFull = false;
+                    break;
+                }
+            }
+
+            if (rowFull)
+            {
+                ClearRow(y);
+            }
+        }
+
+        // Dolu sütunları bul
+        for (int x = 0; x < gridWidth; x++)
+        {
+            bool columnFull = true;
+            for (int y = 0; y < gridHeight; y++)
+            {
+                if (!gridData[x, y])
+                {
+                    columnFull = false;
+                    break;
+                }
+            }
+
+            if (columnFull)
+            {
+                ClearColumn(x);
+            }
+        }
+    }
+
+    private void ClearRow(int y)
+    {
+        for (int x = 0; x < gridWidth; x++)
+        {
+            gridData[x, y] = false;
+            DestroyBlockAt(x, y);
+        }
+    }
+
+    private void ClearColumn(int x)
+    {
+        for (int y = 0; y < gridHeight; y++)
+        {
+            gridData[x, y] = false;
+            DestroyBlockAt(x, y);
+        }
+    }
+
+    private void DestroyBlockAt(int x, int y)
+    {
+        Vector3 worldPos = GridToWorldPosition(x, y);
+        Collider2D[] colliders = Physics2D.OverlapPointAll(worldPos);
+        foreach (var col in colliders)
+        {
+            if (col.GetComponent<DraggableBlock>() != null)
+            {
+                Destroy(col.gameObject);
+            }
+        }
+    }
 }
