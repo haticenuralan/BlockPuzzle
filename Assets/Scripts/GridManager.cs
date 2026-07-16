@@ -70,9 +70,12 @@ public class GridManager : MonoBehaviour
             gridData[x, y] = occupied;
         }
     }
+
     // Dolu olan satır/sütunları kontrol eder ve varsa temizler
     public void CheckAndClearLines()
     {
+        int linesCleared = 0;
+
         // Dolu satırları bul
         for (int y = 0; y < gridHeight; y++)
         {
@@ -89,6 +92,7 @@ public class GridManager : MonoBehaviour
             if (rowFull)
             {
                 ClearRow(y);
+                linesCleared++;
             }
         }
 
@@ -108,7 +112,13 @@ public class GridManager : MonoBehaviour
             if (columnFull)
             {
                 ClearColumn(x);
+                linesCleared++;
             }
+        }
+
+        if (linesCleared > 0 && ScoreManager.Instance != null)
+        {
+            ScoreManager.Instance.AddScore(linesCleared);
         }
     }
 
