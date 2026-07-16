@@ -8,6 +8,9 @@ public class DraggableBlock : MonoBehaviour
     private Camera mainCamera;
     private GridManager gridManager;
 
+    public BlockSpawner spawner;
+    public int spawnSlotIndex = -1;
+
     // Bu blok şu an hangi grid hücresinde duruyor (henüz yerleştirilmediyse -1,-1)
     private int currentGridX = -1;
     private int currentGridY = -1;
@@ -58,6 +61,12 @@ public class DraggableBlock : MonoBehaviour
             currentGridY = gridPos.y;
 
             gridManager.CheckAndClearLines();
+
+            if (spawner != null && spawnSlotIndex != -1)
+            {
+                spawner.OnBlockPlaced(spawnSlotIndex);
+                spawnSlotIndex = -1; // Tekrar bildirim gitmesin diye sıfırlıyoruz
+            }
         }
         else
         {
