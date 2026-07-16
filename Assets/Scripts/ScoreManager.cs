@@ -1,4 +1,5 @@
 using UnityEngine;
+using TMPro;
 
 public class ScoreManager : MonoBehaviour
 {
@@ -6,6 +7,8 @@ public class ScoreManager : MonoBehaviour
 
     public int currentScore = 0;
     private int pointsPerLine = 10;
+
+    public TextMeshProUGUI scoreText;
 
     void Awake()
     {
@@ -21,6 +24,11 @@ public class ScoreManager : MonoBehaviour
         }
     }
 
+    void Start()
+    {
+        UpdateScoreText();
+    }
+
     public void AddScore(int linesCleared)
     {
         // Birden fazla satır aynı anda temizlenirse bonus ver (basit bir combo mantığı)
@@ -31,6 +39,14 @@ public class ScoreManager : MonoBehaviour
         }
 
         currentScore += points;
-        Debug.Log("Score: " + currentScore);
+        UpdateScoreText();
+    }
+
+    private void UpdateScoreText()
+    {
+        if (scoreText != null)
+        {
+            scoreText.text = "Score: " + currentScore;
+        }
     }
 }
