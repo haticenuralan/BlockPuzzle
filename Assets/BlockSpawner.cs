@@ -4,8 +4,8 @@ public class BlockSpawner : MonoBehaviour
 {
     public GameObject blockPrefab;
     public GridManager gridManager;
+    public GameOverManager gameOverManager;
 
-    // Tepsideki 3 slotun pozisyonları (grid'in altında)
     public Vector3[] spawnPositions;
 
     private GameObject[] currentBlocks = new GameObject[3];
@@ -36,12 +36,10 @@ public class BlockSpawner : MonoBehaviour
         }
     }
 
-    // DraggableBlock, bir bloğu grid'e başarıyla yerleştirdiğinde bunu çağıracak
     public void OnBlockPlaced(int slotIndex)
     {
         currentBlocks[slotIndex] = null;
 
-        // Tüm slotlar boşaldıysa (3 blok da yerleştirildiyse) yeni set üret
         bool allEmpty = true;
         foreach (var b in currentBlocks)
         {
@@ -55,6 +53,19 @@ public class BlockSpawner : MonoBehaviour
         if (allEmpty)
         {
             SpawnAllBlocks();
+        }
+
+        CheckGameOver();
+    }
+
+    void CheckGameOver()
+    {
+        if (gridManager != null && !gridManager.HasEmptyCell())
+        {
+            if (gameOverManager != null)
+            {
+                gameOverManager.TriggerGameOver();
+            }
         }
     }
 }

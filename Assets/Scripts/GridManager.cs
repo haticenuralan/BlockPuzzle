@@ -71,6 +71,22 @@ public class GridManager : MonoBehaviour
         }
     }
 
+    // Grid'de boş bir hücre var mı kontrol eder
+    public bool HasEmptyCell()
+    {
+        for (int x = 0; x < gridWidth; x++)
+        {
+            for (int y = 0; y < gridHeight; y++)
+            {
+                if (!gridData[x, y])
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     // Dolu olan satır/sütunları kontrol eder ve varsa temizler
     public void CheckAndClearLines()
     {
