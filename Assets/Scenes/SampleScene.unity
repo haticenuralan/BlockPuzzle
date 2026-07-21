@@ -1341,6 +1341,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ScoreManager
   currentScore: 0
   scoreText: {fileID: 360611065}
+  gridManager: {fileID: 206258988}
 --- !u!4 &1744854294
 Transform:
   m_ObjectHideFlags: 0

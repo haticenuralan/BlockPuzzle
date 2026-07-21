@@ -9,6 +9,7 @@ public class ScoreManager : MonoBehaviour
     private int pointsPerLine = 10;
 
     public TextMeshProUGUI scoreText;
+    public GridManager gridManager;
 
     void Awake()
     {
@@ -24,9 +25,34 @@ public class ScoreManager : MonoBehaviour
         }
     }
 
+    void OnEnable()
+    {
+        // GridManager'ın "satırlar temizlendi" haberine abone oluyoruz.
+        // GridManager bizim varlığımızı bilmiyor, sadece haber yayınlıyor.
+        if (gridManager != null)
+        {
+            gridManager.OnLinesCleared += HandleLinesCleared;
+        }
+    }
+
+    void OnDisable()
+    {
+        // Sahneden kaldırıldığımızda aboneliği iptal ediyoruz,
+        // yoksa yok olmuş bir objeye event göndermeye çalışır ve hata verir.
+        if (gridManager != null)
+        {
+            gridManager.OnLinesCleared -= HandleLinesCleared;
+        }
+    }
+
     void Start()
     {
         UpdateScoreText();
+    }
+
+    private void HandleLinesCleared(int linesCleared)
+    {
+        AddScore(linesCleared);
     }
 
     public void AddScore(int linesCleared)

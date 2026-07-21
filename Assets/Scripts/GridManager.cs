@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class GridManager : MonoBehaviour
@@ -6,6 +7,11 @@ public class GridManager : MonoBehaviour
     public int gridHeight = 8;
     public float cellSize = 1f;
     public GameObject cellPrefab;
+
+    // GridManager artık ScoreManager'ı hiç tanımıyor.
+    // Sadece "şu kadar satır/sütun temizlendi" diye haber veriyor,
+    // kim dinlerse dinlesin.
+    public event Action<int> OnLinesCleared;
 
     private bool[,] gridData;
     private float offsetX;
@@ -132,9 +138,9 @@ public class GridManager : MonoBehaviour
             }
         }
 
-        if (linesCleared > 0 && ScoreManager.Instance != null)
+        if (linesCleared > 0)
         {
-            ScoreManager.Instance.AddScore(linesCleared);
+            OnLinesCleared?.Invoke(linesCleared);
         }
     }
 
