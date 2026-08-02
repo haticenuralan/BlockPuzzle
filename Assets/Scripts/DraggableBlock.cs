@@ -55,8 +55,13 @@ public class DraggableBlock : MonoBehaviour
 
     private void TrySnapToGrid()
     {
-        // Ana objenin (referans hücrenin) hedef grid pozisyonu
-        Vector2Int basePos = gridManager.WorldToGridPosition(transform.position);
+        // Referans hücrenin (ilk child, yani şeklin (0,0) noktası) dünya pozisyonunu al
+        Vector3 referenceCellWorldPos = transform.position;
+        if (transform.childCount > 0)
+        {
+            referenceCellWorldPos = transform.GetChild(0).position;
+        }
+        Vector2Int basePos = gridManager.WorldToGridPosition(referenceCellWorldPos);
 
         // Şeklin TÜM hücreleri grid içinde ve boş mu kontrol et
         bool canPlace = true;
@@ -74,9 +79,14 @@ public class DraggableBlock : MonoBehaviour
 
         if (canPlace)
         {
-            // Geçerli: bloğu yerleştir, tüm hücreleri doldur
-            transform.position = gridManager.GridToWorldPosition(basePos.x, basePos.y);
+            // Referans hücrenin hedef pozisyonu ile mevcut pozisyonu arasındaki farkı hesapla,
+            // tüm bloğu buna göre kaydır (böylece child'lar tam hücrelere oturur)
+            Vector3 targetReferencePos = gridManager.GridToWorldPosition(basePos.x, basePos.y);
+            Vector3 currentReferencePos = transform.childCount > 0 ? transform.GetChild(0).position : transform.position;
+            Vector3 shift = targetReferencePos - currentReferencePos;
+            transform.position += shift;
 
+            // Tüm hücreleri doldur
             occupiedCells = new Vector2Int[shapeCells.Length];
             for (int i = 0; i < shapeCells.Length; i++)
             {
