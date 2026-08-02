@@ -11,9 +11,11 @@ public class DraggableBlock : MonoBehaviour
     public BlockSpawner spawner;
     public int spawnSlotIndex = -1;
 
-    // Bu blok şu an hangi grid hücresinde duruyor (henüz yerleştirilmediyse -1,-1)
-    private int currentGridX = -1;
-    private int currentGridY = -1;
+    // Bu bloğun şekli: hangi hücreleri kaplıyor (referans noktasına göre)
+    public Vector2Int[] shapeCells = new Vector2Int[] { new Vector2Int(0, 0) };
+
+    // Bu blok yerleştirildiğinde kapladığı grid hücreleri (boşsa yerleştirilmemiş)
+    private Vector2Int[] occupiedCells = null;
 
     void Start()
     {
@@ -27,10 +29,13 @@ public class DraggableBlock : MonoBehaviour
         startPosition = transform.position;
         isDragging = true;
 
-        // Eğer daha önce bir hücrede duruyorsa, oradan çık (geçici olarak boşalt)
-        if (currentGridX != -1)
+        // Daha önce yerleştirildiyse, kapladığı hücreleri geçici olarak boşalt
+        if (occupiedCells != null)
         {
-            gridManager.SetCellOccupied(currentGridX, currentGridY, false);
+            foreach (var cell in occupiedCells)
+            {
+                gridManager.SetCellOccupied(cell.x, cell.y, false);
+            }
         }
     }
 
@@ -50,32 +55,56 @@ public class DraggableBlock : MonoBehaviour
 
     private void TrySnapToGrid()
     {
-        Vector2Int gridPos = gridManager.WorldToGridPosition(transform.position);
+        // Ana objenin (referans hücrenin) hedef grid pozisyonu
+        Vector2Int basePos = gridManager.WorldToGridPosition(transform.position);
 
-        if (gridManager.IsInsideGrid(gridPos.x, gridPos.y) && gridManager.IsCellEmpty(gridPos.x, gridPos.y))
+        // Şeklin TÜM hücreleri grid içinde ve boş mu kontrol et
+        bool canPlace = true;
+        foreach (var cell in shapeCells)
         {
-            // Geçerli ve boş hücre: bloğu oraya sabitle
-            transform.position = gridManager.GridToWorldPosition(gridPos.x, gridPos.y);
-            gridManager.SetCellOccupied(gridPos.x, gridPos.y, true);
-            currentGridX = gridPos.x;
-            currentGridY = gridPos.y;
+            int x = basePos.x + cell.x;
+            int y = basePos.y + cell.y;
+
+            if (!gridManager.IsInsideGrid(x, y) || !gridManager.IsCellEmpty(x, y))
+            {
+                canPlace = false;
+                break;
+            }
+        }
+
+        if (canPlace)
+        {
+            // Geçerli: bloğu yerleştir, tüm hücreleri doldur
+            transform.position = gridManager.GridToWorldPosition(basePos.x, basePos.y);
+
+            occupiedCells = new Vector2Int[shapeCells.Length];
+            for (int i = 0; i < shapeCells.Length; i++)
+            {
+                int x = basePos.x + shapeCells[i].x;
+                int y = basePos.y + shapeCells[i].y;
+                gridManager.SetCellOccupied(x, y, true);
+                occupiedCells[i] = new Vector2Int(x, y);
+            }
 
             gridManager.CheckAndClearLines();
 
             if (spawner != null && spawnSlotIndex != -1)
             {
                 spawner.OnBlockPlaced(spawnSlotIndex);
-                spawnSlotIndex = -1; // Tekrar bildirim gitmesin diye sıfırlıyoruz
+                spawnSlotIndex = -1;
             }
         }
         else
         {
-            // Geçersiz ya da dolu hücre: eski konuma geri dön
+            // Geçersiz: eski konuma dön, önceki hücreleri geri doldur
             transform.position = startPosition;
 
-            if (currentGridX != -1)
+            if (occupiedCells != null)
             {
-                gridManager.SetCellOccupied(currentGridX, currentGridY, true);
+                foreach (var cell in occupiedCells)
+                {
+                    gridManager.SetCellOccupied(cell.x, cell.y, true);
+                }
             }
         }
     }
