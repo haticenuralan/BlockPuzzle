@@ -14,6 +14,7 @@ public class BlockSpawner : MonoBehaviour
     public Vector3[] spawnPositions;
 
     private GameObject[] currentBlocks = new GameObject[3];
+    private BlockShapeData[] currentShapes = new BlockShapeData[3];
 
     void Start()
     {
@@ -43,6 +44,14 @@ public class BlockSpawner : MonoBehaviour
             GameObject cellVisual = Instantiate(cellVisualPrefab, blockParent.transform);
             cellVisual.transform.localPosition = new Vector3(cell.x, cell.y, 0);
 
+            // Şeklin rengini hücre görseline uygula
+            SpriteRenderer cellSprite = cellVisual.GetComponent<SpriteRenderer>();
+            if (cellSprite != null)
+            {
+                cellSprite.color = shape.shapeColor;
+                cellSprite.sortingOrder = 1; // Bloklar her zaman grid hücrelerinin üstünde görünsün
+            }
+
             // Child'lardaki eski script/collider'ları temizle:
             // sürükleme ana objeden yönetilecek, child'lar sadece görsel
             DraggableBlock childDraggable = cellVisual.GetComponent<DraggableBlock>();
@@ -63,9 +72,11 @@ public class BlockSpawner : MonoBehaviour
         Bounds bounds = CalculateShapeBounds(shape.cells);
         collider.offset = bounds.center;
         collider.size = bounds.size;
+
         blockParent.AddComponent<BlockAnimator>();
 
         currentBlocks[slotIndex] = blockParent;
+        currentShapes[slotIndex] = shape;
     }
 
     // Şeklin hücrelerini kapsayan sınırları hesapla (collider için)
@@ -89,6 +100,7 @@ public class BlockSpawner : MonoBehaviour
     public void OnBlockPlaced(int slotIndex)
     {
         currentBlocks[slotIndex] = null;
+        currentShapes[slotIndex] = null;
 
         bool allEmpty = true;
         foreach (var b in currentBlocks)
@@ -110,12 +122,23 @@ public class BlockSpawner : MonoBehaviour
 
     void CheckGameOver()
     {
-        if (gridManager != null && !gridManager.HasEmptyCell())
+        if (gridManager == null || gameOverManager == null) return;
+
+        // Elimizdeki (henüz yerleştirilmemiş) şekillerden herhangi biri sığıyor mu?
+        bool anyShapeFits = false;
+        foreach (var shape in currentShapes)
         {
-            if (gameOverManager != null)
+            if (shape != null && gridManager.CanShapeFitAnywhere(shape.cells))
             {
-                gameOverManager.TriggerGameOver();
+                anyShapeFits = true;
+                break;
             }
+        }
+
+        // Hiçbiri sığmıyorsa oyun biter
+        if (!anyShapeFits)
+        {
+            gameOverManager.TriggerGameOver();
         }
     }
 }

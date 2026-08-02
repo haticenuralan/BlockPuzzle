@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 public class GridManager : MonoBehaviour
@@ -9,8 +10,7 @@ public class GridManager : MonoBehaviour
     public GameObject cellPrefab;
 
     // GridManager artık ScoreManager'ı hiç tanımıyor.
-    // Sadece "şu kadar satır/sütun temizlendi" diye haber veriyor,
-    // kim dinlerse dinlesin.
+    // Sadece "şu kadar satır/sütun temizlendi" diye haber veriyor.
     public event Action<int> OnLinesCleared;
 
     private bool[,] gridData;
@@ -93,6 +93,39 @@ public class GridManager : MonoBehaviour
         return false;
     }
 
+    // Verilen şekil (hücre listesi) grid'de herhangi bir yere yerleştirilebilir mi?
+    public bool CanShapeFitAnywhere(Vector2Int[] shapeCells)
+    {
+        // Grid'deki her olası başlangıç pozisyonunu dene
+        for (int startX = 0; startX < gridWidth; startX++)
+        {
+            for (int startY = 0; startY < gridHeight; startY++)
+            {
+                bool fits = true;
+
+                // Şeklin tüm hücreleri bu pozisyondan itibaren sığıyor mu?
+                foreach (var cell in shapeCells)
+                {
+                    int x = startX + cell.x;
+                    int y = startY + cell.y;
+
+                    if (!IsInsideGrid(x, y) || !IsCellEmpty(x, y))
+                    {
+                        fits = false;
+                        break;
+                    }
+                }
+
+                if (fits)
+                {
+                    return true; // En az bir yere sığıyor
+                }
+            }
+        }
+
+        return false; // Hiçbir yere sığmıyor
+    }
+
     // Dolu olan satır/sütunları kontrol eder ve varsa temizler
     public void CheckAndClearLines()
     {
@@ -165,13 +198,55 @@ public class GridManager : MonoBehaviour
     private void DestroyBlockAt(int x, int y)
     {
         Vector3 worldPos = GridToWorldPosition(x, y);
-        Collider2D[] colliders = Physics2D.OverlapPointAll(worldPos);
-        foreach (var col in colliders)
+
+        // Bu noktadaki hücre görselini bul ve flash'layıp yok et.
+        SpriteRenderer sr = FindCellSpriteAt(worldPos);
+        if (sr != null)
         {
-            if (col.GetComponent<DraggableBlock>() != null)
+            StartCoroutine(FlashAndDestroy(sr.gameObject));
+        }
+    }
+
+    private SpriteRenderer FindCellSpriteAt(Vector3 worldPos)
+    {
+        DraggableBlock[] allBlocks = FindObjectsByType<DraggableBlock>(FindObjectsSortMode.None);
+
+        foreach (var block in allBlocks)
+        {
+            foreach (Transform child in block.transform)
             {
-                Destroy(col.gameObject);
+                // Bu child hücresi, aradığımız grid pozisyonunda mı?
+                if (Vector3.Distance(child.position, worldPos) < 0.1f)
+                {
+                    return child.GetComponent<SpriteRenderer>();
+                }
             }
         }
+        return null;
+    }
+
+    // Hücreyi kısa süre beyaz parlatıp sonra yok eder
+    private IEnumerator FlashAndDestroy(GameObject cellObject)
+    {
+        SpriteRenderer sr = cellObject.GetComponent<SpriteRenderer>();
+        if (sr == null)
+        {
+            Destroy(cellObject);
+            yield break;
+        }
+
+        Color originalColor = sr.color;
+        float flashDuration = 0.12f;
+        float t = 0f;
+
+        // Beyaza doğru parla
+        while (t < flashDuration)
+        {
+            t += Time.deltaTime;
+            sr.color = Color.Lerp(originalColor, Color.white, t / flashDuration);
+            yield return null;
+        }
+
+        Destroy(cellObject);
     }
 }

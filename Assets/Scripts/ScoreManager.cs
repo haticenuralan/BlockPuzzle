@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using TMPro;
 
@@ -64,8 +65,36 @@ public class ScoreManager : MonoBehaviour
             points += linesCleared * 5; // küçük bir combo bonusu
         }
 
+        int previousScore = currentScore;
         currentScore += points;
-        UpdateScoreText();
+
+        // Skoru anında değil, animasyonla güncelle
+        StopAllCoroutines();
+        StartCoroutine(AnimateScore(previousScore, currentScore));
+    }
+
+    private IEnumerator AnimateScore(int fromScore, int toScore)
+    {
+        float duration = 0.4f;
+        float t = 0f;
+
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+            float progress = t / duration;
+            int displayScore = (int)Mathf.Lerp(fromScore, toScore, progress);
+            if (scoreText != null)
+            {
+                scoreText.text = "Score: " + displayScore;
+            }
+            yield return null;
+        }
+
+        // Bitişte tam değeri garantile
+        if (scoreText != null)
+        {
+            scoreText.text = "Score: " + toScore;
+        }
     }
 
     private void UpdateScoreText()

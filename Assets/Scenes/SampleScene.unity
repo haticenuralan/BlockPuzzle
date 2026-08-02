@@ -622,7 +622,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_BackGroundColor: {r: 0.7022421, g: 0.63897294, b: 0.7830189, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -1074,7 +1074,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc02af8151ef74b58a592d7345bdb87d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BlockSpawner
-  blockPrefab: {fileID: 7204578424037133629, guid: 61bef81a80b974e4fb60d77591bdb186, type: 3}
+  cellVisualPrefab: {fileID: 7204578424037133629, guid: 61bef81a80b974e4fb60d77591bdb186, type: 3}
+  availableShapes:
+  - {fileID: 11400000, guid: 8e5eb73ad2eef402b925a6229dc5bb89, type: 2}
+  - {fileID: 11400000, guid: c512cafa85a8747f598ed30209ecdd70, type: 2}
+  - {fileID: 11400000, guid: dd764efcc4278475bb8126f35e031f8a, type: 2}
+  - {fileID: 11400000, guid: f724f4040be8d4a7cbdd2009075a2e1f, type: 2}
+  - {fileID: 11400000, guid: 83604a077156b4170aaa4a3ea296ed7e, type: 2}
   gridManager: {fileID: 206258988}
   gameOverManager: {fileID: 1250987279}
   spawnPositions:

@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BlockShapeData
   cells:
   - {x: 0, y: 0}
-  shapeColor: {r: 1, g: 1, b: 1, a: 1}
+  shapeColor: {r: 1, g: 0.7954546, b: 0, a: 1}

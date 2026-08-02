@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6d36ae5faeaaa4a4f82bbcb224dbb83d, type: 3}
-  m_Name: Line2
+  m_Name: VerticalLine2
   m_EditorClassIdentifier: Assembly-CSharp::BlockShapeData
   cells:
   - {x: 0, y: 0}
-  - {x: 1, y: 1}
-  shapeColor: {r: 0.9150943, g: 0.56545925, b: 0.8474391, a: 1}
+  - {x: 0, y: 1}
+  shapeColor: {r: 0.5943396, g: 0.18783373, b: 0.18783373, a: 1}
