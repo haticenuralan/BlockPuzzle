@@ -63,6 +63,7 @@ public class BlockSpawner : MonoBehaviour
         Bounds bounds = CalculateShapeBounds(shape.cells);
         collider.offset = bounds.center;
         collider.size = bounds.size;
+        blockParent.AddComponent<BlockAnimator>();
 
         currentBlocks[slotIndex] = blockParent;
     }

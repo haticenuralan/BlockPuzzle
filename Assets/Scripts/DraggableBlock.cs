@@ -95,7 +95,12 @@ public class DraggableBlock : MonoBehaviour
                 gridManager.SetCellOccupied(x, y, true);
                 occupiedCells[i] = new Vector2Int(x, y);
             }
-
+            // Yerleşme animasyonunu oynat
+            BlockAnimator animator = GetComponent<BlockAnimator>();
+            if (animator != null)
+            {
+                animator.PlayPlaceAnimation();
+            }
             gridManager.CheckAndClearLines();
 
             if (spawner != null && spawnSlotIndex != -1)
