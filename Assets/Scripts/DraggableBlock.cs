@@ -34,6 +34,9 @@ public class DraggableBlock : MonoBehaviour
         offset = transform.position - GetMouseWorldPosition();
         startPosition = transform.position;
         isDragging = true;
+
+        // Sürüklerken bu bloğu her şeyin üstünde göster
+        SetSortingOrder(100);
     }
 
     void OnMouseUp()
@@ -101,14 +104,17 @@ public class DraggableBlock : MonoBehaviour
             {
                 animator.PlayPlaceAnimation();
             }
+
             // Yerleşme sesini çal
             if (AudioManager.Instance != null)
             {
                 AudioManager.Instance.PlayPlaceSound();
             }
+
             gridManager.CheckAndClearLines();
 
             isPlaced = true; // Blok artık kilitli, taşınamaz
+            SetSortingOrder(1); // Yerleşti, normal sıralamaya dön
 
             if (spawner != null && spawnSlotIndex != -1)
             {
@@ -120,6 +126,7 @@ public class DraggableBlock : MonoBehaviour
         {
             // Geçersiz: eski konuma dön
             transform.position = startPosition;
+            SetSortingOrder(1); // Tepsiye döndü, normal sıralamaya dön
         }
     }
 
@@ -128,5 +135,18 @@ public class DraggableBlock : MonoBehaviour
         Vector3 mouseScreenPosition = Input.mousePosition;
         mouseScreenPosition.z = mainCamera.WorldToScreenPoint(transform.position).z;
         return mainCamera.ScreenToWorldPoint(mouseScreenPosition);
+    }
+
+    // Bu bloğun tüm hücre görsellerinin sorting order'ını ayarlar
+    private void SetSortingOrder(int order)
+    {
+        foreach (Transform child in transform)
+        {
+            SpriteRenderer sr = child.GetComponent<SpriteRenderer>();
+            if (sr != null)
+            {
+                sr.sortingOrder = order;
+            }
+        }
     }
 }

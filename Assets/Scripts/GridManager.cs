@@ -35,6 +35,12 @@ public class GridManager : MonoBehaviour
                 Vector3 position = GridToWorldPosition(x, y);
                 GameObject cell = Instantiate(cellPrefab, position, Quaternion.identity, transform);
                 cell.name = $"Cell_{x}_{y}";
+                // Grid hücreleri her zaman blokların altında kalsın
+                SpriteRenderer cellRenderer = cell.GetComponent<SpriteRenderer>();
+                if (cellRenderer != null)
+                {
+                    cellRenderer.sortingOrder = 0;
+                }
 
                 gridData[x, y] = false; // Başlangıçta tüm hücreler boş
             }
