@@ -174,6 +174,11 @@ public class GridManager : MonoBehaviour
         if (linesCleared > 0)
         {
             OnLinesCleared?.Invoke(linesCleared);
+            // Satır/sütun temizleme sesini çal
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayClearSound();
+            }
         }
     }
 

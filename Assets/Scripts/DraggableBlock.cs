@@ -17,6 +17,9 @@ public class DraggableBlock : MonoBehaviour
     // Bu blok yerleştirildiğinde kapladığı grid hücreleri (boşsa yerleştirilmemiş)
     private Vector2Int[] occupiedCells = null;
 
+    // Blok grid'e kalıcı yerleştirildi mi? (yerleştirilince artık taşınamaz)
+    private bool isPlaced = false;
+
     void Start()
     {
         mainCamera = Camera.main;
@@ -25,22 +28,18 @@ public class DraggableBlock : MonoBehaviour
 
     void OnMouseDown()
     {
+        // Blok zaten yerleştirildiyse, artık taşınamaz
+        if (isPlaced) return;
+
         offset = transform.position - GetMouseWorldPosition();
         startPosition = transform.position;
         isDragging = true;
-
-        // Daha önce yerleştirildiyse, kapladığı hücreleri geçici olarak boşalt
-        if (occupiedCells != null)
-        {
-            foreach (var cell in occupiedCells)
-            {
-                gridManager.SetCellOccupied(cell.x, cell.y, false);
-            }
-        }
     }
 
     void OnMouseUp()
     {
+        if (isPlaced) return;
+
         isDragging = false;
         TrySnapToGrid();
     }
@@ -95,13 +94,21 @@ public class DraggableBlock : MonoBehaviour
                 gridManager.SetCellOccupied(x, y, true);
                 occupiedCells[i] = new Vector2Int(x, y);
             }
+
             // Yerleşme animasyonunu oynat
             BlockAnimator animator = GetComponent<BlockAnimator>();
             if (animator != null)
             {
                 animator.PlayPlaceAnimation();
             }
+            // Yerleşme sesini çal
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayPlaceSound();
+            }
             gridManager.CheckAndClearLines();
+
+            isPlaced = true; // Blok artık kilitli, taşınamaz
 
             if (spawner != null && spawnSlotIndex != -1)
             {
@@ -111,16 +118,8 @@ public class DraggableBlock : MonoBehaviour
         }
         else
         {
-            // Geçersiz: eski konuma dön, önceki hücreleri geri doldur
+            // Geçersiz: eski konuma dön
             transform.position = startPosition;
-
-            if (occupiedCells != null)
-            {
-                foreach (var cell in occupiedCells)
-                {
-                    gridManager.SetCellOccupied(cell.x, cell.y, true);
-                }
-            }
         }
     }
 
