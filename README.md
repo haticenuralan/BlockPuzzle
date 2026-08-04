@@ -1,40 +1,37 @@
 # Block Puzzle
 
-A grid-based puzzle game built with Unity as my first Unity project. Drag and drop multi-cell shapes onto an 8x8 grid; complete full rows or columns to clear them and earn points. The game ends when none of the available shapes can fit on the board.
+**🎮 [Play in your browser](https://haticenurum.itch.io/block-puzzle)**
 
-## Gameplay
+My first Unity project. A grid puzzle where you drag shapes onto an 8x8 board and clear full rows or columns to score. The game ends when none of your current shapes can fit anywhere.
 
-- **8x8 grid** with drag-and-drop block placement
-- **Multiple block shapes** (single, lines, L-shape) defined as data assets
-- **Line clearing** — completing a full row or column clears it with a flash effect
-- **Scoring** with combo bonuses for clearing multiple lines at once
-- **Game over detection** — the game ends only when no remaining shape can fit anywhere on the grid
-- **Restart** to play again
+I built this to get hands-on with Unity and C# game architecture, coming from a data science and AI background.
 
-## Technical Highlights
+## How it plays
 
-This project was built to demonstrate clean, maintainable Unity/C# code:
+Three random shapes appear each round. Drag them onto the grid; once placed, they lock. Fill a full row or column and it clears. When no remaining shape fits anywhere on the board, it's game over.
 
-- **Data-driven design (ScriptableObject):** Block shapes are defined as `BlockShapeData` assets. Adding a new shape requires creating a new asset — no code changes needed.
-- **Event-based decoupling (Observer pattern):** `GridManager` broadcasts an `OnLinesCleared` event instead of directly calling the score system. `ScoreManager` subscribes to it. The grid doesn't need to know the score system exists.
-- **Single-responsibility components:** Grid logic (`GridManager`), block spawning (`BlockSpawner`), dragging (`DraggableBlock`), scoring (`ScoreManager`), game over (`GameOverManager`), and animation (`BlockAnimator`) are each isolated.
-- **Coroutine-based juice:** Placement bounce, animated score counter, and line-clear flash effects are implemented with coroutines — no external animation assets.
-- **Grid math abstraction:** World-to-grid and grid-to-world coordinate conversions are centralized in `GridManager`.
+## What I focused on
 
-## Architecture Overview
+I wanted the code to be clean and easy to extend, not just working. A few decisions I'm happy with:
 
-- `GridManager` — grid state, coordinate conversion, line clearing, and "can this shape fit?" queries
-- `BlockSpawner` — spawns three random shapes each round, checks for game over
-- `DraggableBlock` — handles dragging and multi-cell snapping/placement validation
-- `BlockShapeData` (ScriptableObject) — defines a shape's occupied cells and color
-- `ScoreManager` — listens for line-clear events and updates the animated score UI
-- `GameOverManager` — shows the game over panel and handles restart
-- `BlockAnimator` — placement bounce effect
+- **Shapes as data, not code.** Each block shape (`BlockShapeData`) is a ScriptableObject asset. To add a new shape I just create a new asset and set its cells, with no code changes. New shapes were literally a two-minute job once this was in place.
 
-## Development Notes
+- **Decoupled scoring with events.** `GridManager` doesn't know the score system exists. It fires an `OnLinesCleared` event, and `ScoreManager` subscribes to it. This keeps the grid logic focused on the grid.
 
-This is my first Unity project, built to strengthen my game-development skills alongside my background in data science and AI. I used AI-assisted development for guidance, debugging, and boilerplate, while implementing and understanding every system myself.
+- **One job per script.** Grid state (`GridManager`), spawning (`BlockSpawner`), dragging (`DraggableBlock`), scoring, game over, and animation are each their own component.
 
-## Known Limitations
+- **Effects done in code.** Placement bounce, the counting score, and the line-clear flash are all coroutines, with no imported animations.
 
-See TODO.md for documented technical debt, including planned improvements like object pooling.
+## Scripts
+
+- `GridManager`: grid state, coordinate math, line clearing, "can this shape fit?" checks
+- `BlockSpawner`: spawns three shapes per round, detects game over
+- `DraggableBlock`: dragging and multi-cell placement validation
+- `BlockShapeData`: ScriptableObject defining a shape's cells and color
+- `ScoreManager`: listens for line-clear events, updates the score
+- `GameOverManager`: game over panel and restart
+- `BlockAnimator`: placement bounce
+
+## Notes
+
+This is my first Unity project. I used AI assistance for guidance and debugging while writing and understanding the systems myself. There's known technical debt (see `TODO.md`), for example the game-over check and object pooling could be improved.
